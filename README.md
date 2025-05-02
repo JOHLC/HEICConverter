@@ -1,28 +1,34 @@
 # HEIC to Image Format Converter (PowerShell GUI)
-This is a simple PowerShell-based GUI tool to convert `.heic` image files to common formats (`jpg`, `png`, `bmp`, `gif`) using [ImageMagick](https://imagemagick.org). It features a user-friendly interface with folder selection, format dropdown, and a progress bar.
+A simple PowerShell GUI tool to batch convert `.heic` image files to common formats (`jpg`, `png`, `bmp`, `gif`) using [ImageMagick](https://imagemagick.org). Features folder selection, format dropdown, and a live progress bar.
 
 ## Features
-- Select a folder containing `.heic` files
+- Select a folder of `.heic` files
 - Choose output format (`jpg`, `png`, `bmp`, `gif`)
-- Handles batch conversion
-- Simple GUI – no command-line interaction needed
+- Batch conversion with progress indicator
+- Simple GUI — no command-line use needed
 
 ## Prerequisites
 - **Windows**
-- **[ImageMagick](https://imagemagick.org/script/download.php)** installed and available in your system PATH  
-  (Test this by running `magick -version` in PowerShell)
+- **[ImageMagick](https://imagemagick.org/script/download.php)** installed and added to system PATH  
+  (Run `magick -version` in PowerShell to verify)
 
 ## How to Use
-1. Select the folder containing `.heic` files.
-2. Choose your desired output format from the dropdown.
-3. Click **Convert**.
-4. Converted files will be saved in the same folder with the new format.
+1. Run the exe.
+2. Click **Select Folder** and choose the folder with `.heic` images.
+3. Choose an output format from the dropdown.
+4. Click **Convert**. Files will be saved in the same folder with the new format.
 
 ## Disclaimer
-This script is provided "as is" without any warranty or guarantee of any kind, express or implied.  
+This script is provided “as is” with no warranty or guarantee of any kind.  
 Use at your own risk.
-- Always back up your files before running batch conversions.
-- The author is not responsible for any data loss, file corruption, or system issues resulting from the use of this tool.
-- Ensure you comply with any licensing terms for ImageMagick or other third-party software used in conjunction with this script.
 
-By using this script, you agree to take full responsibility for its operation and outcomes.
+- Always back up your files before running batch operations.
+- The author is not liable for data loss, corruption, or other issues.
+- Make sure you follow licensing terms for ImageMagick or any other third-party tools used with this script.
+
+By using this script, you accept full responsibility for its use and effects.
+
+## License
+Free to use and modify for personal or commercial use.  
+**Redistribution, republishing, or resale of this script is not allowed.**  
+See [LICENSE](LICENSE) for full terms.
