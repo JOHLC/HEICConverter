@@ -18,3 +18,11 @@ This is a simple PowerShell-based GUI tool to convert `.heic` image files to com
 3. Click **Convert**.
 4. Converted files will be saved in the same folder with the new format.
 
+## Disclaimer
+This script is provided "as is" without any warranty or guarantee of any kind, express or implied.  
+Use at your own risk.
+- Always back up your files before running batch conversions.
+- The author is not responsible for any data loss, file corruption, or system issues resulting from the use of this tool.
+- Ensure you comply with any licensing terms for ImageMagick or other third-party software used in conjunction with this script.
+
+By using this script, you agree to take full responsibility for its operation and outcomes.
