@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install ImageMagick
+      run: |
+        winget install -e --id ImageMagick.ImageMagick --accept-source-agreements --accept-package-agreements
+    
+    - name: Install PS2EXE Module
+      run: |
+        Install-Module -Name PS2EXE -Force -AllowClobber -Scope CurrentUser
+    
+    - name: Build Executable
+      run: |
+        cd build/PS2EXE
+        .\PS2EXE.ps1
+        if (-not (Test-Path "HEICConverter.exe")) {
+          Write-Error "Failed to build executable"
+          exit 1
+        }
+        Write-Host "✅ Executable built successfully"
+    
+    - name: Get Version from Tag
+      id: version
+      run: |
+        $tag = "${{ github.ref_name }}"
+        $version = $tag -replace '^v', ''
+        echo "version=$version" >> $env:GITHUB_OUTPUT
+        echo "Version: $version"
+    
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: HEIC Converter v${{ steps.version.outputs.version }}
+        body: |
+          ## HEIC Converter v${{ steps.version.outputs.version }}
+          
+          ### Download
+          - Download `HEICConverter.exe` below
+          - Requires ImageMagick to be installed on your system
+          
+          ### What's New
+          - See [CHANGELOG.md](https://github.com/JOHLC/HEICConverter/blob/main/CHANGELOG.md) for details
+          
+          ### System Requirements
+          - Windows 10 or later
+          - ImageMagick installed and in system PATH
+          
+          ### Installation
+          1. Download the executable
+          2. Install ImageMagick: `winget install -e --id ImageMagick.ImageMagick`
+          3. Run HEICConverter.exe
+        draft: false
+        prerelease: false
+    
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: build/PS2EXE/HEICConverter.exe
+        asset_name: HEICConverter.exe
+        asset_content_type: application/vnd.microsoft.portable-executable

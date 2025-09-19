@@ -1,0 +1,72 @@
+name: 🐛 Bug Report
+description: Report a bug or issue with the HEIC Converter
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to report a bug! Please fill out the information below to help us diagnose and fix the issue.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: Describe the bug...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior
+      placeholder: |
+        1. Open the application
+        2. Click on '...'
+        3. Select '...'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen
+      placeholder: Describe what should have happened...
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots or error messages
+      placeholder: Drag and drop images here or paste error text...
+
+  - type: input
+    id: windows-version
+    attributes:
+      label: Windows Version
+      description: What version of Windows are you running?
+      placeholder: e.g., Windows 11 22H2, Windows 10 21H2
+    validations:
+      required: true
+
+  - type: input
+    id: imagemagick-version
+    attributes:
+      label: ImageMagick Version
+      description: What version of ImageMagick do you have? (Run `magick -version` in command prompt)
+      placeholder: e.g., ImageMagick 7.1.0-51
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context about the problem
+      placeholder: Add any other context about the problem here...
