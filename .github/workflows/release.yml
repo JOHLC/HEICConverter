@@ -20,6 +20,36 @@ jobs:
       run: |
         Install-Module -Name PS2EXE -Force -AllowClobber -Scope CurrentUser
     
+    - name: Get Version from Tag
+      id: version
+      run: |
+        $tag = "${{ github.ref_name }}"
+        $version = $tag -replace '^v', ''
+        echo "version=$version" >> $env:GITHUB_OUTPUT
+        echo "Version: $version"
+    
+    - name: Update Version in Build Script
+      run: |
+        $version = "${{ steps.version.outputs.version }}"
+        $buildScript = "build/PS2EXE/PS2EXE.ps1"
+        $content = Get-Content $buildScript -Raw
+        $content = $content -replace '-Version "([^"]+)"', "-Version `"$version`""
+        Set-Content $buildScript -Value $content -NoNewline
+        Write-Host "✅ Updated version to $version in build script"
+    
+    - name: Validate PowerShell Script
+      run: |
+        $scriptPath = "build/PS2EXE/HEICConverter.ps1"
+        $errors = $null
+        $null = [System.Management.Automation.PSParser]::Tokenize((Get-Content $scriptPath -Raw), [ref]$errors)
+        if ($errors) {
+          Write-Error "PowerShell syntax errors found:"
+          $errors | ForEach-Object { Write-Error $_ }
+          exit 1
+        } else {
+          Write-Host "✅ PowerShell script syntax is valid"
+        }
+    
     - name: Build Executable
       run: |
         cd build/PS2EXE
@@ -29,14 +59,9 @@ jobs:
           exit 1
         }
         Write-Host "✅ Executable built successfully"
-    
-    - name: Get Version from Tag
-      id: version
-      run: |
-        $tag = "${{ github.ref_name }}"
-        $version = $tag -replace '^v', ''
-        echo "version=$version" >> $env:GITHUB_OUTPUT
-        echo "Version: $version"
+        $exe = Get-Item "HEICConverter.exe"
+        Write-Host "File size: $([math]::Round($exe.Length / 1MB, 2)) MB"
+        Write-Host "Build time: $($exe.LastWriteTime)"
     
     - name: Create Release
       id: create_release
@@ -49,21 +74,37 @@ jobs:
         body: |
           ## HEIC Converter v${{ steps.version.outputs.version }}
           
-          ### Download
-          - Download `HEICConverter.exe` below
-          - Requires ImageMagick to be installed on your system
+          ### 📥 Download
+          - Download `HEICConverter.exe` below and run it on Windows
+          - **Requirements:** ImageMagick must be installed on your system
           
-          ### What's New
-          - See [CHANGELOG.md](https://github.com/JOHLC/HEICConverter/blob/main/CHANGELOG.md) for details
+          ### ✨ What's New in v${{ steps.version.outputs.version }}
+          - Enhanced error handling and user feedback
+          - Improved file detection (case-insensitive HEIC files)
+          - Better UI responsiveness during conversion
+          - Proper resource cleanup and memory management
+          - Confirmation dialogs and overwrite protection
+          - More detailed progress reporting
           
-          ### System Requirements
+          ### 🔧 System Requirements
           - Windows 10 or later
           - ImageMagick installed and in system PATH
+          - .NET Framework 4.5+ (usually pre-installed)
           
-          ### Installation
-          1. Download the executable
-          2. Install ImageMagick: `winget install -e --id ImageMagick.ImageMagick`
-          3. Run HEICConverter.exe
+          ### 📦 Installation & Usage
+          1. **Install ImageMagick:** `winget install -e --id ImageMagick.ImageMagick`
+          2. **Download:** Get `HEICConverter.exe` from the assets below
+          3. **Run:** Double-click the executable to start the application
+          4. **Convert:** Select folder → Choose format → Click Convert
+          
+          ### 🐛 Troubleshooting
+          - If you get "ImageMagick not found" error, restart your computer after installing ImageMagick
+          - The app requires HEIC files in the selected folder (supports both .heic and .HEIC extensions)
+          - See [README](https://github.com/JOHLC/HEICConverter/blob/main/README.md) for more help
+          
+          ---
+          
+          💡 **Tip:** This tool works great for batch converting iPhone photos to share with Windows users!
         draft: false
         prerelease: false
     
@@ -74,5 +115,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: build/PS2EXE/HEICConverter.exe
-        asset_name: HEICConverter.exe
+        asset_name: HEICConverter-v${{ steps.version.outputs.version }}.exe
         asset_content_type: application/vnd.microsoft.portable-executable
