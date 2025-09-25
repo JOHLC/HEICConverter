@@ -1,7 +1,7 @@
-Invoke-PS2EXE -InputFile "\HEICConverter.ps1" `
-              -OutputFile "\HEICConverter.exe" `
+Invoke-PS2EXE -InputFile "HEICConverter.ps1" `
+              -OutputFile "HEICConverter.exe" `
               -NoConsole `
-              -Icon "\icon.ico" `
+              -Icon "icon.ico" `
               -Title "HEIC Converter" `
               -Description "A PowerShell script to convert HEIC files to different image formats" `
               -Company "Joel Common" `

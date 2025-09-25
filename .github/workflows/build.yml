@@ -1,0 +1,58 @@
+name: Build and Validate
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install ImageMagick
+      run: |
+        winget install -e --id ImageMagick.ImageMagick --accept-source-agreements --accept-package-agreements
+    
+    - name: Verify ImageMagick Installation
+      run: |
+        magick -version
+    
+    - name: Install PS2EXE Module
+      run: |
+        Install-Module -Name PS2EXE -Force -AllowClobber -Scope CurrentUser
+    
+    - name: Validate PowerShell Script Syntax
+      run: |
+        $scriptPath = "build/PS2EXE/HEICConverter.ps1"
+        $errors = $null
+        $null = [System.Management.Automation.PSParser]::Tokenize((Get-Content $scriptPath -Raw), [ref]$errors)
+        if ($errors) {
+          Write-Error "PowerShell syntax errors found:"
+          $errors | ForEach-Object { Write-Error $_ }
+          exit 1
+        } else {
+          Write-Host "✅ PowerShell script syntax is valid"
+        }
+    
+    - name: Build Executable
+      run: |
+        cd build/PS2EXE
+        .\PS2EXE.ps1
+        if (-not (Test-Path "HEICConverter.exe")) {
+          Write-Error "❌ Failed to build executable"
+          exit 1
+        } else {
+          Write-Host "✅ Executable built successfully"
+          Get-Item "HEICConverter.exe" | Select-Object Name, Length, LastWriteTime
+        }
+    
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: HEICConverter-exe
+        path: build/PS2EXE/HEICConverter.exe
+        retention-days: 30

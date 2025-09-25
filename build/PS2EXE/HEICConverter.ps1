@@ -1,5 +1,5 @@
 # HEIC to Image Format Converter Script with Full GUI and Progress Indicator
-# Author: YourName
+# Author: Joel Common (JOHLC)
 
 # Load Windows Forms for folder and format selection dialog
 Add-Type -AssemblyName "System.Windows.Forms"
