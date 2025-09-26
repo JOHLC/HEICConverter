@@ -48,10 +48,20 @@ HEICConverter/
 │       ├── HEICConverter.ps1    # Main PowerShell script
 │       ├── PS2EXE.ps1          # Build script for creating executable
 │       └── icon.ico            # Application icon
+├── scripts/
+│   ├── build.ps1               # Comprehensive build script
+│   ├── update-version.ps1      # Version management script
+│   └── validate.ps1            # Code validation script
+├── .github/
+│   └── workflows/
+│       ├── build.yml           # CI/CD build and validation
+│       └── release.yml         # Automated release creation
 ├── HEICConverter.exe           # Pre-built executable
 ├── LICENSE                     # License file
 ├── README.md                   # User documentation
-└── DEVELOPMENT.md             # This file
+├── DEVELOPMENT.md             # This file
+├── CONTRIBUTING.md            # Contribution guidelines
+└── CHANGELOG.md               # Version history
 ```
 
 ## Development Workflow
@@ -65,12 +75,36 @@ cd build/PS2EXE
 
 ### Building the Executable
 To build a new executable:
+
+#### Option 1: Using the Build Script (Recommended)
+```powershell
+cd scripts
+.\build.ps1
+```
+
+This will:
+- Validate prerequisites (PS2EXE module, PowerShell version)
+- Run syntax validation
+- Build the executable
+- Provide build statistics
+
+#### Option 2: Manual Build
 ```powershell
 cd build/PS2EXE
 .\PS2EXE.ps1
 ```
 
-This will create a new `HEICConverter.exe` in the current directory.
+#### Build Options
+```powershell
+# Build with verbose output
+.\build.ps1 -Verbose
+
+# Skip validation (faster build)
+.\build.ps1 -SkipValidation
+
+# Custom output location
+.\build.ps1 -OutputPath "C:\MyBuilds\HEICConverter.exe"
+```
 
 ### Code Style
 - Use descriptive variable names with camelCase for local variables
@@ -79,13 +113,68 @@ This will create a new `HEICConverter.exe` in the current directory.
 - Follow PowerShell best practices for error handling
 
 ### Testing
-Currently, there are no automated tests. Manual testing should cover:
-1. Folder selection functionality
-2. Format selection (jpg, png, bmp, gif)
-3. Conversion process with progress tracking
-4. Error handling for missing ImageMagick
-5. Error handling for invalid folders
-6. UI responsiveness during conversion
+#### Automated Validation
+```powershell
+cd scripts
+.\validate.ps1  # Validates syntax, dependencies, and file structure
+```
+
+#### Manual Testing Checklist
+Manual testing should cover:
+- [ ] Application starts without errors
+- [ ] ImageMagick detection works properly
+- [ ] Folder selection functionality 
+- [ ] HEIC file detection (both .heic and .HEIC)
+- [ ] Format selection (jpg, png, bmp, gif)
+- [ ] Conversion process with progress tracking
+- [ ] Error handling for missing ImageMagick
+- [ ] Error handling for invalid/empty folders
+- [ ] File overwrite confirmation dialogs
+- [ ] UI responsiveness during conversion
+- [ ] Proper completion messages with statistics
+- [ ] Resource cleanup (no memory leaks)
+- [ ] Built executable works as expected
+
+#### Test Data
+For testing, create a folder with sample HEIC files:
+- Mix of `.heic` and `.HEIC` extensions
+- Various file sizes
+- Include some invalid/corrupted files to test error handling
+Recent enhancements include:
+- **Enhanced error handling**: Proper ImageMagick availability checking
+- **Input validation**: Folder validation and HEIC file detection
+- **UI improvements**: Better progress reporting and user feedback
+- **Resource management**: Proper disposal of Windows Forms objects
+- **Case-insensitive file detection**: Supports both `.heic` and `.HEIC` files
+- **Overwrite protection**: Confirmation dialogs for existing files
+- **Better UX**: Disabled controls during processing, detailed completion messages
+
+### Release Management
+Use the version management script to update versions:
+```powershell
+cd scripts
+# Dry run to see what would change
+.\update-version.ps1 -NewVersion "1.0.0" -WhatIf
+
+# Apply version update
+.\update-version.ps1 -NewVersion "1.0.0"
+
+# Update version and create git tag
+.\update-version.ps1 -NewVersion "1.0.0" -CreateTag
+```
+
+### Automated Releases
+EXE creation is fully automated via GitHub Actions:
+1. **On every push/PR**: Build validation and artifact creation
+2. **On tag push** (`v*`): Automatic release with executable attachment
+3. **Version management**: Automatic version injection during release builds
+
+To create a release:
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+This triggers the automated release workflow.
 
 ## Troubleshooting
 

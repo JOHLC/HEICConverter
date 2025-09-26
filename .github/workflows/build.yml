@@ -20,10 +20,18 @@ jobs:
     - name: Verify ImageMagick Installation
       run: |
         magick -version
+        Write-Host "✅ ImageMagick is available"
     
     - name: Install PS2EXE Module
       run: |
         Install-Module -Name PS2EXE -Force -AllowClobber -Scope CurrentUser
+        $module = Get-Module -Name PS2EXE -ListAvailable
+        Write-Host "✅ PS2EXE module installed - Version: $($module.Version)"
+    
+    - name: Run Validation Script
+      run: |
+        cd scripts
+        .\validate.ps1
     
     - name: Validate PowerShell Script Syntax
       run: |
@@ -38,7 +46,7 @@ jobs:
           Write-Host "✅ PowerShell script syntax is valid"
         }
     
-    - name: Build Executable
+    - name: Test Build Executable
       run: |
         cd build/PS2EXE
         .\PS2EXE.ps1
@@ -47,12 +55,26 @@ jobs:
           exit 1
         } else {
           Write-Host "✅ Executable built successfully"
-          Get-Item "HEICConverter.exe" | Select-Object Name, Length, LastWriteTime
+          $exe = Get-Item "HEICConverter.exe"
+          Write-Host "📊 Build Statistics:"
+          Write-Host "   File size: $([math]::Round($exe.Length / 1MB, 2)) MB"
+          Write-Host "   Build time: $($exe.LastWriteTime)"
+          Write-Host "   Full path: $($exe.FullName)"
         }
     
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: HEICConverter-exe
+        name: HEICConverter-exe-${{ github.sha }}
         path: build/PS2EXE/HEICConverter.exe
         retention-days: 30
+    
+    - name: Upload Build Logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-logs-${{ github.sha }}
+        path: |
+          **/*.log
+          **/*.txt
+        retention-days: 7
