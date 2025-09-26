@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced README.md structure and formatting
 - Improved project documentation overall
 
+### Fixed
+- GitHub Actions release workflow now handles existing releases properly
+- Release workflow can now upload assets to existing releases using `gh release upload --clobber`
+- Added robust error handling for release creation/update scenarios
+
 ## [0.9.9] - 2025-01-XX
 
 ### Added
