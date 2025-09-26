@@ -16,10 +16,11 @@ $form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 try {
     $iconPath = Join-Path $PSScriptRoot "icon.ico"
     if (Test-Path $iconPath) {
-        $form.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPath)
+        $form.Icon = New-Object System.Drawing.Icon($iconPath)
     }
 } catch {
     # Icon loading failed, continue without icon
+    Write-Host "Failed to load icon: $($_.Exception.Message)"
 }
 
 # Create Folder Selection Button
