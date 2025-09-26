@@ -26,7 +26,7 @@ cd HEICConverter
 ### 2. Install ImageMagick
 Install ImageMagick using winget:
 ```powershell
-winget install -e --id ImageMagick.ImageMagic
+winget install -e --id ImageMagick.ImageMagick
 ```
 
 Verify installation:
