@@ -14,11 +14,39 @@ jobs:
     
     - name: Install ImageMagick
       run: |
-        winget install -e --id ImageMagick.ImageMagick --accept-source-agreements --accept-package-agreements
+        # Try to install ImageMagick, but don't fail if it's already installed or no upgrade is available
+        $result = winget install -e --id ImageMagick.ImageMagick --accept-source-agreements --accept-package-agreements
+        if ($LASTEXITCODE -eq 0) {
+          Write-Host "✅ ImageMagick installed successfully"
+        } elseif ($LASTEXITCODE -eq 1) {
+          Write-Host "ℹ️  ImageMagick already installed or no upgrade available"
+          # Verify it's actually installed and accessible
+          try {
+            $version = magick -version 2>$null
+            if ($version) {
+              Write-Host "✅ ImageMagick is accessible: $($version.Split("`n")[0])"
+            } else {
+              Write-Error "❌ ImageMagick installation verification failed"
+              exit 1
+            }
+          } catch {
+            Write-Error "❌ ImageMagick installation verification failed: $($_.Exception.Message)"
+            exit 1
+          }
+        } else {
+          Write-Error "❌ ImageMagick installation failed with exit code $LASTEXITCODE"
+          exit 1
+        }
     
     - name: Install PS2EXE Module
       run: |
-        Install-Module -Name PS2EXE -Force -AllowClobber -Scope CurrentUser
+        try {
+          Install-Module -Name PS2EXE -Force -AllowClobber -Scope CurrentUser
+          Write-Host "✅ PS2EXE module installed successfully"
+        } catch {
+          Write-Error "❌ Failed to install PS2EXE module: $($_.Exception.Message)"
+          exit 1
+        }
     
     - name: Build Executable
       run: |
