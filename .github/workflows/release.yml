@@ -14,19 +14,74 @@ jobs:
     
     - name: Install ImageMagick
       run: |
-        # Try to install ImageMagick, but don't fail if it's already installed or no upgrade is available
-        $result = winget install -e --id ImageMagick.ImageMagick --accept-source-agreements --accept-package-agreements
-        if ($LASTEXITCODE -eq 0) {
-          Write-Host "✅ ImageMagick installed successfully"
-        } elseif ($LASTEXITCODE -eq 1) {
-          Write-Host "ℹ️  ImageMagick already installed or no upgrade available"
-          # Verify it's actually installed and accessible
+        Write-Host "🔄 Installing ImageMagick..."
+        
+        # First, check if ImageMagick is already available
+        try {
+          $existingVersion = magick -version 2>$null
+          if ($existingVersion) {
+            Write-Host "✅ ImageMagick is already installed and accessible"
+            Write-Host "   Version: $($existingVersion.Split("`n")[0])"
+            exit 0
+          }
+        } catch {
+          Write-Host "ℹ️  ImageMagick not currently accessible, proceeding with installation..."
+        }
+        
+        # Try multiple installation methods
+        $installSuccess = $false
+        
+        # Method 1: Try winget with specific source
+        Write-Host "🔄 Trying winget installation method..."
+        try {
+          $result = winget install --id ImageMagick.ImageMagick --source winget --accept-source-agreements --accept-package-agreements --silent
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "✅ ImageMagick installed successfully via winget"
+            $installSuccess = $true
+          } elseif ($LASTEXITCODE -eq -1978335189) {
+            Write-Host "⚠️  Winget installation failed with known error code, trying alternative method..."
+          } else {
+            Write-Host "⚠️  Winget installation failed with exit code $LASTEXITCODE, trying alternative method..."
+          }
+        } catch {
+          Write-Host "⚠️  Winget installation encountered an error: $($_.Exception.Message)"
+        }
+        
+        # Method 2: Try chocolatey as fallback
+        if (-not $installSuccess) {
+          Write-Host "🔄 Trying chocolatey installation method..."
+          try {
+            # Install chocolatey if not present
+            if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+              Write-Host "Installing Chocolatey..."
+              Set-ExecutionPolicy Bypass -Scope Process -Force
+              [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+              Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+            }
+            
+            # Install ImageMagick via chocolatey
+            choco install imagemagick -y --no-progress
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "✅ ImageMagick installed successfully via chocolatey"
+              $installSuccess = $true
+              # Refresh environment variables
+              $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+            }
+          } catch {
+            Write-Host "⚠️  Chocolatey installation failed: $($_.Exception.Message)"
+          }
+        }
+        
+        # Final verification
+        if ($installSuccess) {
+          Start-Sleep -Seconds 5  # Give time for PATH updates
           try {
             $version = magick -version 2>$null
             if ($version) {
-              Write-Host "✅ ImageMagick is accessible: $($version.Split("`n")[0])"
+              Write-Host "✅ ImageMagick installation verified successfully"
+              Write-Host "   Version: $($version.Split("`n")[0])"
             } else {
-              Write-Error "❌ ImageMagick installation verification failed"
+              Write-Error "❌ ImageMagick installed but not accessible in PATH"
               exit 1
             }
           } catch {
@@ -34,7 +89,7 @@ jobs:
             exit 1
           }
         } else {
-          Write-Error "❌ ImageMagick installation failed with exit code $LASTEXITCODE"
+          Write-Error "❌ All ImageMagick installation methods failed"
           exit 1
         }
     

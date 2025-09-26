@@ -13,7 +13,7 @@ A simple PowerShell GUI tool to batch convert `.heic` image files to common form
   You can install it via [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/) with this command:
 
   ```powershell
-  winget install -e --id ImageMagick.ImageMagic
+  winget install -e --id ImageMagick.ImageMagick
   ```
 
   Or download from the [official ImageMagick website](https://imagemagick.org/script/download.php#windows).
