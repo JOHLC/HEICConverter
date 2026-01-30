@@ -129,7 +129,8 @@ jobs:
         ## HEIC Converter v$version
 
         ### Download
-        - Download ``HEICConverter.exe`` below
+        - Download ``HEICConverter.exe`` and ``icon.ico`` below
+        - Keep both files in the same folder for the icon to display properly
         - Requires ImageMagick to be installed on your system
 
         ### What's New
@@ -140,9 +141,10 @@ jobs:
         - ImageMagick installed and in system PATH
 
         ### Installation
-        1. Download the executable
-        2. Install ImageMagick: ``winget install -e --id ImageMagick.ImageMagick``
-        3. Run HEICConverter.exe
+        1. Download both HEICConverter.exe and icon.ico
+        2. Place them in the same folder
+        3. Install ImageMagick: ``winget install -e --id ImageMagick.ImageMagick``
+        4. Run HEICConverter.exe
         "@
         
         # Check if release already exists
@@ -150,23 +152,23 @@ jobs:
           $ErrorActionPreference = 'SilentlyContinue'
           $existingRelease = gh release view $tag
           if ($LASTEXITCODE -eq 0) {
-            Write-Host "✅ Release $tag already exists, uploading asset..."
-            gh release upload $tag build/PS2EXE/HEICConverter.exe --clobber
-            Write-Host "✅ Asset uploaded successfully to existing release"
+            Write-Host "✅ Release $tag already exists, uploading assets..."
+            gh release upload $tag build/PS2EXE/HEICConverter.exe build/PS2EXE/icon.ico --clobber
+            Write-Host "✅ Assets uploaded successfully to existing release"
           } else {
             Write-Host "Creating new release $tag..."
-            gh release create $tag build/PS2EXE/HEICConverter.exe --title "HEIC Converter v$version" --notes $releaseNotes
+            gh release create $tag build/PS2EXE/HEICConverter.exe build/PS2EXE/icon.ico --title "HEIC Converter v$version" --notes $releaseNotes
             Write-Host "✅ New release created successfully"
           }
         } catch {
           Write-Host "⚠️  Error checking for existing release, attempting to create new one..."
           try {
-            gh release create $tag build/PS2EXE/HEICConverter.exe --title "HEIC Converter v$version" --notes $releaseNotes
+            gh release create $tag build/PS2EXE/HEICConverter.exe build/PS2EXE/icon.ico --title "HEIC Converter v$version" --notes $releaseNotes
             Write-Host "✅ New release created successfully"
           } catch {
             Write-Host "❌ Failed to create release, trying to upload to existing release..."
-            gh release upload $tag build/PS2EXE/HEICConverter.exe --clobber
-            Write-Host "✅ Asset uploaded to existing release"
+            gh release upload $tag build/PS2EXE/HEICConverter.exe build/PS2EXE/icon.ico --clobber
+            Write-Host "✅ Assets uploaded to existing release"
           }
         }
       env:
