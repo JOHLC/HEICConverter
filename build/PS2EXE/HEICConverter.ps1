@@ -12,7 +12,14 @@ $form.Size = New-Object System.Drawing.Size(500, 320)  # Increased size to preve
 $form.MinimumSize = New-Object System.Drawing.Size(450, 300)  # Set minimum size
 $form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 
-# Note: Application icon is embedded during compilation by PS2EXE (see PS2EXE.ps1)
+# Set application icon - extracts from embedded icon in compiled EXE
+try {
+    if ($PSCommandPath) {
+        $form.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($PSCommandPath)
+    }
+} catch {
+    # Icon extraction failed, continue without icon (silent failure)
+}
 
 # Create Folder Selection Button
 $folderButton = New-Object System.Windows.Forms.Button
