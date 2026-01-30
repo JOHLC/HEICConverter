@@ -14,7 +14,15 @@ $form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 
 # Load and set the application icon
 try {
-    $iconPath = Join-Path $PSScriptRoot "icon.ico"
+    # Handle both script and compiled executable contexts
+    $scriptPath = if ($PSScriptRoot) { 
+        $PSScriptRoot 
+    } else { 
+        # When compiled with PS2EXE, use the executable's directory
+        Split-Path -Parent ([Environment]::GetCommandLineArgs()[0])
+    }
+    
+    $iconPath = Join-Path $scriptPath "icon.ico"
     if (Test-Path $iconPath) {
         $form.Icon = New-Object System.Drawing.Icon($iconPath)
     }
