@@ -149,7 +149,7 @@ jobs:
         try {
           $ErrorActionPreference = 'SilentlyContinue'
           $existingRelease = gh release view $tag
-          if ($existingRelease) {
+          if ($LASTEXITCODE -eq 0) {
             Write-Host "✅ Release $tag already exists, uploading asset..."
             gh release upload $tag build/PS2EXE/HEICConverter.exe --clobber
             Write-Host "✅ Asset uploaded successfully to existing release"
