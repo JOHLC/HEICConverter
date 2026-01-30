@@ -19,7 +19,13 @@ try {
         $PSScriptRoot 
     } else { 
         # When compiled with PS2EXE, use the executable's directory
-        Split-Path -Parent ([Environment]::GetCommandLineArgs()[0])
+        $parent = Split-Path -Parent ([Environment]::GetCommandLineArgs()[0])
+        if ([string]::IsNullOrEmpty($parent)) {
+            # Fallback to current working directory for edge cases
+            Get-Location | Select-Object -ExpandProperty Path
+        } else {
+            $parent
+        }
     }
     
     $iconPath = Join-Path $scriptPath "icon.ico"
