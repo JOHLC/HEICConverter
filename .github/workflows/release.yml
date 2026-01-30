@@ -147,7 +147,8 @@ jobs:
         
         # Check if release already exists
         try {
-          $existingRelease = gh release view $tag 2>$null
+          $ErrorActionPreference = 'SilentlyContinue'
+          $existingRelease = gh release view $tag
           if ($existingRelease) {
             Write-Host "✅ Release $tag already exists, uploading asset..."
             gh release upload $tag build/PS2EXE/HEICConverter.exe --clobber
