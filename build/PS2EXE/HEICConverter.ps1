@@ -12,16 +12,7 @@ $form.Size = New-Object System.Drawing.Size(500, 320)  # Increased size to preve
 $form.MinimumSize = New-Object System.Drawing.Size(450, 300)  # Set minimum size
 $form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 
-# Load and set the application icon
-try {
-    $iconPath = Join-Path $PSScriptRoot "icon.ico"
-    if (Test-Path $iconPath) {
-        $form.Icon = New-Object System.Drawing.Icon($iconPath)
-    }
-} catch {
-    # Icon loading failed, continue without icon
-    Write-Host "Failed to load icon: $($_.Exception.Message)"
-}
+# Note: Application icon is embedded during compilation by PS2EXE (see PS2EXE.ps1)
 
 # Create Folder Selection Button
 $folderButton = New-Object System.Windows.Forms.Button
