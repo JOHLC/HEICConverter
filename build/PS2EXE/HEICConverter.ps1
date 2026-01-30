@@ -12,15 +12,13 @@ $form.Size = New-Object System.Drawing.Size(500, 320)  # Increased size to preve
 $form.MinimumSize = New-Object System.Drawing.Size(450, 300)  # Set minimum size
 $form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 
-# Load and set the application icon
+# Set application icon - extracts from embedded icon in compiled EXE
 try {
-    $iconPath = Join-Path $PSScriptRoot "icon.ico"
-    if (Test-Path $iconPath) {
-        $form.Icon = New-Object System.Drawing.Icon($iconPath)
+    if ($PSCommandPath) {
+        $form.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($PSCommandPath)
     }
 } catch {
-    # Icon loading failed, continue without icon
-    Write-Host "Failed to load icon: $($_.Exception.Message)"
+    # Icon extraction failed, continue without icon (silent failure)
 }
 
 # Create Folder Selection Button
