@@ -121,10 +121,12 @@ jobs:
         echo "version=$version" >> $env:GITHUB_OUTPUT
         echo "Version: $version"
     
-    - name: Create Release
+    - name: Create or Update Release
       run: |
-        # Create the release using GitHub CLI with inline notes
-        gh release create "${{ github.ref_name }}" build/PS2EXE/HEICConverter.exe --title "HEIC Converter v${{ steps.version.outputs.version }}" --notes "## HEIC Converter v${{ steps.version.outputs.version }}
+        $tag = "${{ github.ref_name }}"
+        $version = "${{ steps.version.outputs.version }}"
+        $releaseNotes = @"
+        ## HEIC Converter v$version
 
         ### Download
         - Download ``HEICConverter.exe`` below
@@ -140,6 +142,32 @@ jobs:
         ### Installation
         1. Download the executable
         2. Install ImageMagick: ``winget install -e --id ImageMagick.ImageMagick``
-        3. Run HEICConverter.exe"
+        3. Run HEICConverter.exe
+        "@
+        
+        # Check if release already exists
+        try {
+          $ErrorActionPreference = 'SilentlyContinue'
+          $existingRelease = gh release view $tag
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "✅ Release $tag already exists, uploading asset..."
+            gh release upload $tag build/PS2EXE/HEICConverter.exe --clobber
+            Write-Host "✅ Asset uploaded successfully to existing release"
+          } else {
+            Write-Host "Creating new release $tag..."
+            gh release create $tag build/PS2EXE/HEICConverter.exe --title "HEIC Converter v$version" --notes $releaseNotes
+            Write-Host "✅ New release created successfully"
+          }
+        } catch {
+          Write-Host "⚠️  Error checking for existing release, attempting to create new one..."
+          try {
+            gh release create $tag build/PS2EXE/HEICConverter.exe --title "HEIC Converter v$version" --notes $releaseNotes
+            Write-Host "✅ New release created successfully"
+          } catch {
+            Write-Host "❌ Failed to create release, trying to upload to existing release..."
+            gh release upload $tag build/PS2EXE/HEICConverter.exe --clobber
+            Write-Host "✅ Asset uploaded to existing release"
+          }
+        }
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
