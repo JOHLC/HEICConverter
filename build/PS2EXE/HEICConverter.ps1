@@ -133,8 +133,8 @@ $convertButton.Add_Click({
     $outputFormat = $comboBox.SelectedItem
     $statusLabel.Text = "Starting conversion to .$outputFormat format..."
 
-    # Get the list of .heic files in the selected folder
-    $files = Get-ChildItem -Path $global:folderPath -Filter *.heic -ErrorAction SilentlyContinue
+    # Get the list of .heic files in the selected folder (case-insensitive)
+    $files = Get-ChildItem -Path $global:folderPath -File -ErrorAction SilentlyContinue | Where-Object { $_.Extension -ieq ".heic" }
     $totalFiles = $files.Count
 
     if ($totalFiles -eq 0) {
@@ -168,8 +168,9 @@ $convertButton.Add_Click({
             
             # Perform the conversion using ImageMagick
             $result = & magick "$heicFile" "$outputFile" 2>&1
+            $exitCode = $LASTEXITCODE
             
-            if ($LASTEXITCODE -eq 0) {
+            if ($exitCode -eq 0) {
                 $successCount++
             } else {
                 $errorCount++
