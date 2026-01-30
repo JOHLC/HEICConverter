@@ -164,6 +164,7 @@ $convertButton.Add_Click({
             # Update status for current file
             $statusLabel.Text = "Converting: $($_.Name) ($($i + 1) of $totalFiles)"
             $form.Refresh()  # Force UI update
+            [System.Windows.Forms.Application]::DoEvents()
             
             # Perform the conversion using ImageMagick
             $result = & magick "$heicFile" "$outputFile" 2>&1
