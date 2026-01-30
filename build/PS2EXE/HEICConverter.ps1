@@ -100,8 +100,8 @@ $folderButton.Add_Click({
         $folderLabel.Text = "Selected: $global:folderPath"
         $statusLabel.Text = "Folder selected. Choose format and click Convert Files."
         
-        # Count HEIC files in the selected folder
-        $heicFiles = Get-ChildItem -Path $global:folderPath -Filter *.heic -ErrorAction SilentlyContinue
+        # Count HEIC files in the selected folder (case-insensitive by extension)
+        $heicFiles = Get-ChildItem -Path $global:folderPath -File -ErrorAction SilentlyContinue | Where-Object { $_.Extension -ieq ".heic" }
         if ($heicFiles.Count -gt 0) {
             $statusLabel.Text = "Found $($heicFiles.Count) HEIC file(s). Ready to convert."
         } else {
