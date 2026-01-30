@@ -132,10 +132,21 @@ jobs:
           Write-Host "✅ Executable built successfully"
           Get-Item "HEICConverter.exe" | Select-Object Name, Length, LastWriteTime
         }
+        
+        # Verify icon.ico exists for runtime icon loading
+        if (-not (Test-Path "icon.ico")) {
+          Write-Error "❌ icon.ico not found - required for runtime icon display"
+          exit 1
+        } else {
+          Write-Host "✅ icon.ico verified"
+          Get-Item "icon.ico" | Select-Object Name, Length, LastWriteTime
+        }
     
-    - name: Upload Build Artifact
+    - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: HEICConverter-exe
-        path: build/PS2EXE/HEICConverter.exe
+        path: |
+          build/PS2EXE/HEICConverter.exe
+          build/PS2EXE/icon.ico
         retention-days: 30
