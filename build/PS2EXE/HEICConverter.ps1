@@ -158,7 +158,7 @@ $convertButton.Add_Click({
         $errorCount = 0
     } -Process {
         $heicFile = $_.FullName
-        $outputFile = "$($global:folderPath)\$($_.BaseName).$outputFormat"
+        $outputFile = Join-Path $global:folderPath "$($_.BaseName).$outputFormat"
         
         try {
             # Update status for current file
